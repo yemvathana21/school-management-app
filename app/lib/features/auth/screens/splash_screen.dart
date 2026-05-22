@@ -2,11 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:psbu_app/core/providers/auth_provider.dart';
 
-class SplashScreen extends ConsumerWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      final auth = ref.read(authProvider);
+      if (auth.status == AuthStatus.unknown) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen(authProvider, (_, next) {
       if (!context.mounted) return;
       if (next.status == AuthStatus.authenticated) {
@@ -16,10 +33,7 @@ class SplashScreen extends ConsumerWidget {
           (route) => false,
         );
       } else if (next.status == AuthStatus.unauthenticated) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/login',
-          (route) => false,
-        );
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
       }
     });
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:psbu_app/core/models/announcement_model.dart';
+import 'package:psbu_app/core/models/attendance_model.dart';
 import 'package:psbu_app/core/models/schedule_model.dart';
 import 'package:psbu_app/core/models/user_model.dart';
 import 'package:psbu_app/core/providers/announcement_provider.dart';
+import 'package:psbu_app/core/providers/attendance_provider.dart';
 import 'package:psbu_app/core/providers/schedule_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -15,6 +17,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final announcementsAsync = ref.watch(announcementsProvider);
     final schedulesAsync = ref.watch(schedulesProvider);
+    final attendancesAsync = ref.watch(attendancesProvider);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -68,6 +71,11 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+              ),
+              attendancesAsync.when(
+                data: (attendances) => _buildAttendanceStats(context, attendances),
+                loading: () => const SizedBox(height: 80),
+                error: (_, __) => const SizedBox(height: 80),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -503,6 +511,79 @@ class HomeScreen extends ConsumerWidget {
     if (name.contains('bio')) return Icons.biotech;
     if (name.contains('comp') || name.contains('info')) return Icons.computer;
     return Icons.book;
+  }
+
+  Widget _buildAttendanceStats(BuildContext context, List<AttendanceModel> attendances) {
+    final total = attendances.length;
+    final present = attendances.where((a) => a.status == 'present').length;
+    final percentage = total > 0 ? (present / total * 100).toStringAsFixed(0) : '100';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$percentage%', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green)),
+                      Text('Attendance', style: TextStyle(color: Colors.green.shade700, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.calendar_today, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$total', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue)),
+                      Text('Total Days', style: TextStyle(color: Colors.blue.shade700, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildQuickAccess(BuildContext context) {

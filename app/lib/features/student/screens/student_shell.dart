@@ -1,54 +1,46 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:psbu_app/core/models/user_model.dart';
 import 'package:psbu_app/core/providers/auth_provider.dart';
 import 'package:psbu_app/features/student/screens/home_screen.dart';
 import 'package:psbu_app/features/student/screens/schedule_screen.dart';
 import 'package:psbu_app/features/student/screens/scan_screen.dart';
 import 'package:psbu_app/features/student/screens/classes_screen.dart';
 import 'package:psbu_app/features/student/screens/menu_screen.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class StudentShell extends ConsumerStatefulWidget {
+class StudentShell extends ConsumerWidget {
   const StudentShell({super.key});
 
   @override
-  ConsumerState<StudentShell> createState() => _StudentShellState();
-}
-
-class _StudentShellState extends ConsumerState<StudentShell> {
-  int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUser();
-  }
-
-  Future<void> _loadUser() async {
-    final storage = const FlutterSecureStorage();
-    final userData = await storage.read(key: 'user_data');
-    if (userData != null && mounted) {
-      final user = UserModel.fromJson(
-        jsonDecode(userData) as Map<String, dynamic>,
-      );
-      ref.read(authProvider.notifier).login(user.email, '');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final auth = ref.watch(authProvider);
     final user = auth.user;
 
+    return _StudentShellContent(user: user, theme: theme);
+  }
+}
+
+class _StudentShellContent extends StatefulWidget {
+  final dynamic user;
+  final ThemeData theme;
+
+  const _StudentShellContent({required this.user, required this.theme});
+
+  @override
+  State<_StudentShellContent> createState() => _StudentShellContentState();
+}
+
+class _StudentShellContentState extends State<_StudentShellContent> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final screens = [
-      HomeScreen(user: user),
-      ScheduleScreen(user: user),
-      ScanScreen(user: user),
-      ClassesScreen(user: user),
-      MenuScreen(user: user),
+      HomeScreen(user: widget.user),
+      ScheduleScreen(user: widget.user),
+      ScanScreen(user: widget.user),
+      ClassesScreen(user: widget.user),
+      MenuScreen(user: widget.user),
     ];
 
     return Scaffold(
@@ -56,7 +48,7 @@ class _StudentShellState extends ConsumerState<StudentShell> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 6,
-        color: theme.colorScheme.surface,
+        color: widget.theme.colorScheme.surface,
         child: SizedBox(
           height: 56,
           child: Row(
@@ -78,10 +70,10 @@ class _StudentShellState extends ConsumerState<StudentShell> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => setState(() => _currentIndex = 2),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: widget.theme.colorScheme.primary,
         child: Icon(
           Icons.qr_code_scanner,
-          color: theme.colorScheme.onPrimary,
+          color: widget.theme.colorScheme.onPrimary,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

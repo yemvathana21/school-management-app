@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClassController;
@@ -31,4 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/announcements', [AnnouncementController::class, 'store']);
 
     Route::post('/qr/generate', [QrController::class, 'generate']);
+
+    Route::get('/assignments', [AssignmentController::class, 'index']);
+    Route::post('/assignments', [AssignmentController::class, 'store']);
+    Route::get('/assignments/{assignment}', [AssignmentController::class, 'show']);
 });

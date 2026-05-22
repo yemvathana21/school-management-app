@@ -13,6 +13,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -107,16 +108,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     width: double.infinity,
                     height: 48,
                     child: FilledButton(
-                      onPressed: auth.status == AuthStatus.authenticated
+                      onPressed: (_loading || auth.status == AuthStatus.authenticated)
                           ? null
                           : () async {
                               if (!_formKey.currentState!.validate()) return;
+                              setState(() => _loading = true);
                               await ref.read(authProvider.notifier).login(
                                     _emailController.text.trim(),
                                     _passwordController.text,
                                   );
+                              if (mounted) setState(() => _loading = false);
                             },
-                      child: auth.status == AuthStatus.unknown
+                      child: _loading
                           ? const SizedBox(
                               width: 20,
                               height: 20,

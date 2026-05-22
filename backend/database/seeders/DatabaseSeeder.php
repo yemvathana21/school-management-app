@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Announcement;
+use App\Models\Assignment;
 use App\Models\Attendance;
 use App\Models\Classes;
 use App\Models\Course;
@@ -248,6 +249,43 @@ class DatabaseSeeder extends Seeder
             'name' => 'UTS Matematika',
             'score' => 88,
             'max_score' => 100,
+        ]);
+
+        // --- Sample Assignments ---
+        Assignment::create([
+            'class_id' => $class1->id,
+            'course_id' => $courses[0]->id,
+            'teacher_id' => $teacher1->id,
+            'title' => 'Homework 1: Linear Equations',
+            'description' => 'Solve problems 1-20 from chapter 3. Submit via Google Classroom.',
+            'due_date' => now()->addDays(7)->toDateString(),
+        ]);
+
+        Assignment::create([
+            'class_id' => $class1->id,
+            'course_id' => $courses[1]->id,
+            'teacher_id' => $teacher1->id,
+            'title' => 'Physics Lab Report: Newton\'s Laws',
+            'description' => 'Write a lab report based on the experiment conducted in class.',
+            'due_date' => now()->addDays(14)->toDateString(),
+        ]);
+
+        Assignment::create([
+            'class_id' => $class2->id,
+            'course_id' => $courses[0]->id,
+            'teacher_id' => $teacher1->id,
+            'title' => 'Math Quiz Prep',
+            'description' => 'Prepare for the upcoming quiz on matrices and determinants.',
+            'due_date' => now()->addDays(3)->toDateString(),
+        ]);
+
+        Assignment::create([
+            'class_id' => $class2->id,
+            'course_id' => $courses[2]->id,
+            'teacher_id' => $teacher2->id,
+            'title' => 'English Essay: My Hero',
+            'description' => 'Write a 500-word essay about someone you admire.',
+            'due_date' => now()->addDays(10)->toDateString(),
         ]);
     }
 }

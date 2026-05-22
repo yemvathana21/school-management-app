@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:psbu_app/core/models/user_model.dart';
+import 'package:psbu_app/core/repositories/attendance_repository.dart';
 
-class ScanScreen extends StatefulWidget {
+class ScanScreen extends ConsumerStatefulWidget {
   final UserModel? user;
-
   const ScanScreen({super.key, this.user});
 
   @override
-  State<ScanScreen> createState() => _ScanScreenState();
+  ConsumerState<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> {
+class _ScanScreenState extends ConsumerState<ScanScreen> {
   MobileScannerController? _controller;
   bool _scanned = false;
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -28,54 +30,64 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void _onDetect(BarcodeCapture capture) {
-    if (_scanned) return;
+    if (_scanned || _submitting) return;
     final barcode = capture.barcodes.firstOrNull;
     if (barcode?.rawValue == null) return;
     setState(() => _scanned = true);
+    _processQr(barcode!.rawValue!);
+  }
+
+  Future<void> _processQr(String rawValue) async {
+    final parts = rawValue.split('|');
+    if (parts.length < 2) {
+      _showResult(false, 'Invalid QR code format');
+      return;
+    }
+    final scheduleId = int.tryParse(parts[0]);
+    if (scheduleId == null) {
+      _showResult(false, 'Invalid QR code data');
+      return;
+    }
+
+    setState(() => _submitting = true);
+    try {
+      await ref.read(attendanceRepositoryProvider).storeAttendance(
+        scheduleId: scheduleId,
+        qrCode: rawValue,
+      );
+      _showResult(true, 'Attendance marked successfully!');
+    } catch (e) {
+      _showResult(false, 'Failed to mark attendance. Already recorded?');
+    } finally {
+      setState(() => _submitting = false);
+    }
+  }
+
+  void _showResult(bool success, String message) {
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 28),
-            SizedBox(width: 10),
-            Text('Attendance'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('QR Code detected!'),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                barcode!.rawValue!,
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
-              ),
+            Icon(
+              success ? Icons.check_circle : Icons.error,
+              color: success ? Colors.green : Colors.red,
+              size: 28,
             ),
+            const SizedBox(width: 10),
+            Text(success ? 'Success' : 'Error'),
           ],
         ),
+        content: Text(message),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              setState(() => _scanned = false);
-            },
-            child: const Text('Cancel'),
-          ),
           FilledButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               setState(() => _scanned = false);
             },
-            child: const Text('Mark Attendance'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -101,10 +113,7 @@ class _ScanScreenState extends State<ScanScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.center,
-                colors: [
-                  Colors.black.withValues(alpha: 0.5),
-                  Colors.transparent,
-                ],
+                colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
               ),
             ),
           ),
@@ -113,10 +122,7 @@ class _ScanScreenState extends State<ScanScreen> {
               gradient: LinearGradient(
                 begin: Alignment.center,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.5),
-                ],
+                colors: [Colors.transparent, Colors.black.withValues(alpha: 0.5)],
               ),
             ),
           ),
@@ -129,10 +135,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   height: 260,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: theme.colorScheme.primary,
-                      width: 3,
-                    ),
+                    border: Border.all(color: theme.colorScheme.primary, width: 3),
                     boxShadow: [
                       BoxShadow(
                         color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -141,25 +144,19 @@ class _ScanScreenState extends State<ScanScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.qr_code_scanner,
-                        size: 72,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Point camera at QR code',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                  child: _submitting
+                      ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.qr_code_scanner, size: 72, color: Colors.white.withValues(alpha: 0.6)),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Point camera at QR code',
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 40),
                 Container(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:psbu_app/core/models/user_model.dart';
 import 'package:psbu_app/core/providers/class_provider.dart';
+import 'package:psbu_app/features/student/screens/class_detail_screen.dart';
 
 class ClassesScreen extends ConsumerWidget {
   final UserModel? user;
@@ -59,7 +60,12 @@ class ClassesScreen extends ConsumerWidget {
                 ),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ClassDetailScreen(classModel: c),
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
