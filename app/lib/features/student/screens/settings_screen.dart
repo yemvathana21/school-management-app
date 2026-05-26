@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: const Text('Get notified about new announcements'),
                   value: _notifications,
                   onChanged: (v) => setState(() => _notifications = v),
-                  activeColor: const Color(0xFF6C63FF),
+                  activeThumbColor: const Color(0xFF6C63FF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: const Text('Use dark theme'),
                   value: _darkMode,
                   onChanged: (v) => setState(() => _darkMode = v),
-                  activeColor: const Color(0xFF6C63FF),
+                  activeThumbColor: const Color(0xFF6C63FF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

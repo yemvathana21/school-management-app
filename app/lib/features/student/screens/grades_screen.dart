@@ -18,7 +18,7 @@ class GradesScreen extends ConsumerWidget {
       body: gradesAsync.when(
         data: (grades) => _buildContent(context, ref, grades),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => Center(
+        error: (_, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

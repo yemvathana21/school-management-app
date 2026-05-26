@@ -164,10 +164,10 @@ class _DashboardTab extends ConsumerWidget {
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (_, __) => const SizedBox(),
+                  error: (_, _) => const SizedBox(),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => Center(
+                error: (_, _) => Center(
                   child: Text(
                     'Failed to load data',
                     style: TextStyle(color: Colors.grey.shade600),
@@ -418,7 +418,7 @@ class _AttendanceTabState extends ConsumerState<_AttendanceTab> {
               },
               loading: () =>
                   const Center(child: CircularProgressIndicator()),
-              error: (_, __) => Padding(
+              error: (_, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
@@ -480,7 +480,7 @@ class _AttendanceTabState extends ConsumerState<_AttendanceTab> {
             const SizedBox(height: 12),
             ...todaySchedules.map((s) => ListTile(
                   leading: const Icon(Icons.class_),
-                  title: Text('${s.course?.name ?? ''}'),
+                  title: Text(s.course?.name ?? ''),
                   subtitle: Text('${s.startTime} - ${s.endTime} | ${s.room ?? ''}'),
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -605,7 +605,7 @@ class _GradesTabState extends ConsumerState<_GradesTab> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
-                              value: _selectedType,
+                              initialValue: _selectedType,
                               decoration: const InputDecoration(
                                 labelText: 'Type',
                                 border: OutlineInputBorder(),
@@ -682,7 +682,7 @@ class _GradesTabState extends ConsumerState<_GradesTab> {
                       },
                       loading: () =>
                           const Center(child: CircularProgressIndicator()),
-                      error: (_, __) =>
+                      error: (_, _) =>
                           const Text('Failed to load data'),
                     ),
                   ],
@@ -753,7 +753,7 @@ class _GradesTabState extends ConsumerState<_GradesTab> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, __) => Padding(
+              error: (_, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(

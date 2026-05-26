@@ -34,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
               announcementsAsync.when(
                 data: (data) => _buildAnnouncements(context, data),
                 loading: () => const SizedBox(height: 180),
-                error: (_, __) => const SizedBox(height: 180),
+                error: (_, _) => const SizedBox(height: 180),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
@@ -62,7 +62,7 @@ class HomeScreen extends ConsumerWidget {
                   padding: EdgeInsets.all(32),
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (_, __) => Padding(
+                error: (_, _) => Padding(
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Text(
@@ -75,7 +75,7 @@ class HomeScreen extends ConsumerWidget {
               attendancesAsync.when(
                 data: (attendances) => _buildAttendanceStats(context, attendances),
                 loading: () => const SizedBox(height: 80),
-                error: (_, __) => const SizedBox(height: 80),
+                error: (_, _) => const SizedBox(height: 80),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),

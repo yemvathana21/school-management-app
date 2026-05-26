@@ -111,7 +111,7 @@ class AssignmentsScreen extends ConsumerWidget {
                                   Text(
                                     overdue
                                         ? 'Overdue by ${-dayDiff} days'
-                                        : '${dayDiff == 0 ? "Today" : "$dayDiff days left"}',
+                                        : dayDiff == 0 ? "Today" : "$dayDiff days left",
                                     style: TextStyle(
                                       color: overdue ? Colors.red : Colors.grey.shade600,
                                       fontSize: 11,
@@ -132,7 +132,7 @@ class AssignmentsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => Center(
+        error: (_, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
